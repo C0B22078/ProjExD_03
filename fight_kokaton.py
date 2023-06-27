@@ -112,9 +112,9 @@ class Bomb:
         """
         yoko, tate = check_bound(self.rct)
         if not yoko:
-            self.vx *= -1
+            self.vx  *= -1
         if not tate:
-            self.vy *= -1
+            self.vy  *= -1
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
 
