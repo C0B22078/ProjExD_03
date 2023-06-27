@@ -1,6 +1,7 @@
 import random
 import sys
 import time
+import math
 
 import pygame as pg
 
@@ -28,6 +29,8 @@ class Bird:
     """
     ゲームキャラクター（こうかとん）に関するクラス
     """
+    dire = (5,0)
+    
     delta = {  # 押下キーと移動量の辞書
         pg.K_UP: (0, -5),
         pg.K_DOWN: (0, +5),
@@ -41,14 +44,19 @@ class Bird:
         引数1 num：こうかとん画像ファイル名の番号
         引数2 xy：こうかとん画像の位置座標タプル
         """
-        self.img = pg.transform.flip(  # 左右反転
-            pg.transform.rotozoom(  # 2倍に拡大
-                pg.image.load(f"ex03/fig/{num}.png"), 
-                0, 
-                2.0), 
-            True, 
-            False
-        )
+        img0 = pg.transform.rotozoom(pg.image.load(f"ex03/fig/{num}.png"), 0, 2.0)  # 左向き
+        img = pg.transform.flip(img0, True, False)  # 右向き
+        self.imgs = {
+            (+5, 0): img,  # 右
+            (+5, -5): pg.transform.rotozoom(img, 45, 1.0),  # 右上
+            (0, -5): pg.transform.rotozoom(img, 90, 1.0),  # 上
+            (-5, -5): pg.transform.rotozoom(img0, -45, 1.0),  # 左上
+            (-5, 0): img0,  # 左
+            (-5, +5): pg.transform.rotozoom(img0, 45, 1.0),  # 左下
+            (0, +5): pg.transform.rotozoom(img, -90, 1.0),  # 下
+            (+5, +5): pg.transform.rotozoom(img, -45, 1.0),  # 右下
+        }
+        self.img = self.imgs[(+5, 0)]  # デフォルト：右向き
         self.rct = self.img.get_rect()
         self.rct.center = xy
 
@@ -75,7 +83,10 @@ class Bird:
         self.rct.move_ip(sum_mv)
         if check_bound(self.rct) != (True, True):
             self.rct.move_ip(-sum_mv[0], -sum_mv[1])
+        if not (sum_mv[0] == 0 and sum_mv[1] == 0):  # 何かしらの矢印キーが押されていたら
+            self.img = self.imgs[tuple(sum_mv)] 
         screen.blit(self.img, self.rct)
+        self.dire = sum_mv
 
 
 class Bomb:
@@ -120,9 +131,19 @@ class Beam:
         """
         self.img = pg.transform.rotozoom(pg.image.load(f"ex03/fig/beam.png"), 0, 2.0)
         self.rct = self.img.get_rect()
+
+        # こうかとんが向いている方向をvx, vyに代入
+        self.vx, self.vy = bird.dire
+
+        # 直交座標(x, -y)から極座標の角度Θに変換
+        theta = math.atan2(-self.vy, self.vx)
+
+        # 弧度法から度数法に変換し，rotozoomで回転
+        self.img = pg.transform.rotozoom(self.img, math.degrees(theta), 1.0)
+
+        # こうかとんのrctのwidthとheightおよび向いている方向を考慮した初期配置
         self.rct.left = bird.rct.right
         self.rct.centery = bird.rct.centery
-        self.vx, self.vy = +5, 0
     
     def update(self, screen: pg.Surface):
         """
