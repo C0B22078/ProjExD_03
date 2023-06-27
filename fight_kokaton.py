@@ -136,7 +136,7 @@ class Beam:
 
         if self.vx == 0 and self.vy == 0:#issue1修正
             self.vx = 5
-            self.vy=0
+            self.vy = 0
 
         # 直交座標(x, -y)から極座標の角度Θに変換
         theta = math.atan2(-self.vy, self.vx)
