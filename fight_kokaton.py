@@ -117,7 +117,7 @@ class Beam:
         引数:screen 画面:Surface"""
         self.img = pg.transform.rotozoom(pg.image.load(f"ex03/fig/beam.png"),0,2)
         self.rct = self.img.get_rect()
-        self.rct.centerx = bird.rct.centerx
+        self.rct.centerx = bird.rct.centerx+100
         self.rct.centery = bird.rct.centery
         self.vx,self.vy = +5,0
     def update(self, screen: pg.Surface):
@@ -157,6 +157,10 @@ def main():
             if bomb.rct.colliderect(beam.rct):
                 bomb = None
                 beam = None
+                bird.change_img(6, screen)
+                pg.display.update()
+                
+                
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         if bomb is not None:
