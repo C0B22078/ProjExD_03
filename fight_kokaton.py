@@ -1,6 +1,7 @@
 import random
 import sys
 import time
+import math
 
 import pygame as pg
 
@@ -28,6 +29,8 @@ class Bird:
     """
     ゲームキャラクター（こうかとん）に関するクラス
     """
+    dire = (5,0)
+    
     delta = {  # 押下キーと移動量の辞書
         pg.K_UP: (0, -5),
         pg.K_DOWN: (0, +5),
@@ -83,6 +86,7 @@ class Bird:
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):  # 何かしらの矢印キーが押されていたら
             self.img = self.imgs[tuple(sum_mv)] 
         screen.blit(self.img, self.rct)
+        self.dire = sum_mv
 
 
 class Bomb:
@@ -127,9 +131,19 @@ class Beam:
         """
         self.img = pg.transform.rotozoom(pg.image.load(f"ex03/fig/beam.png"), 0, 2.0)
         self.rct = self.img.get_rect()
+
+        # こうかとんが向いている方向をvx, vyに代入
+        self.vx, self.vy = bird.dire
+
+        # 直交座標(x, -y)から極座標の角度Θに変換
+        theta = math.atan2(-self.vy, self.vx)
+
+        # 弧度法から度数法に変換し，rotozoomで回転
+        self.img = pg.transform.rotozoom(self.img, math.degrees(theta), 1.0)
+
+        # こうかとんのrctのwidthとheightおよび向いている方向を考慮した初期配置
         self.rct.left = bird.rct.right
         self.rct.centery = bird.rct.centery
-        self.vx, self.vy = +5, 0
     
     def update(self, screen: pg.Surface):
         """
