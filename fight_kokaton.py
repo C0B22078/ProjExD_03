@@ -134,7 +134,7 @@ class Beam:
         # こうかとんが向いている方向をvx, vyに代入
         self.vx, self.vy = bird.dire
 
-        if self.vx == 0 and self.vy == 0:
+        if self.vx == 0 and self.vy == 0:#issue1修正
             self.vx = 5
             self.vy=0
 
